@@ -42,8 +42,8 @@ class MyDocument {
 	}
 }
 
-class Style {
-	static empty = new Style();
+class MyStyle {
+	static empty = new MyStyle();
 	setProperty() {}
 	removeProperty() {}
 }
@@ -54,13 +54,15 @@ class MyElement {
 	attributes: Record<string, unknown>;
 	children: (MyElement | MyTextNode)[];
 	parentNode: MyElement | MyTextNode | null;
+	key: string;
 
-	constructor(ownerDocument: MyDocument, tagName: string) {
+	constructor(ownerDocument: MyDocument, tagName: string, key = nanoid()) {
 		this.ownerDocument = ownerDocument;
 		this.tagName = tagName;
-		this.attributes = {};
+		this.attributes = { key };
 		this.children = [];
 		this.parentNode = null;
+		this.key = key;
 	}
 
 	setAttribute(name: string, value: unknown) {
@@ -109,7 +111,6 @@ class MyElement {
 
 	appendChild(child: MyElement) {
 		this.children.push(child);
-		child.setAttribute("key", nanoid());
 		child.parentNode = this;
 		return child;
 	}
@@ -123,7 +124,6 @@ class MyElement {
 			this.children.splice(i, 0, child);
 		}
 
-		child.setAttribute("key", nanoid());
 		child.parentNode = this;
 		return child;
 	}
@@ -145,12 +145,10 @@ class MyElement {
 	}
 
 	get style() {
-		return Style.empty;
+		return MyStyle.empty;
 	}
 
 	toHyperScript(): ReactNode {
-		console.log(this.attributes);
-
 		return createElement(
 			this.tagName,
 			this.attributes,
